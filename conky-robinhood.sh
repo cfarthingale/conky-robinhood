@@ -81,7 +81,6 @@ for e in 0 1 2; do
 	#ALERTS
 	if [[ $returnp > "9" ]];then
 		echo "\${color orange} | + ALERT  : Above +9% return = Sell?\${color}"
-		echo "Alert, $symbol up $returnp%, Sell now to lock in $return dollars"|espeak
 	fi
 echo " +"
 done
