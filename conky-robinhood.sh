@@ -15,7 +15,7 @@ buyingpower=$(curl -s $apiurl/accounts/ -H "Accept: application/json" -H "Author
 cash=$(curl -s $apiurl/accounts/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq -r '.results[].cash'|cut -c1-7)
 positions=$(curl -s $apiurl/positions/ -H "Accept: application/json" -H "Authorization: Token $authtoken")
 totalprofit=$(echo "${equity}-${totaldeposits}"| bc)
-totalprofitc=$(echo "${totalprofit}"| bc|cut -c1)
+totalprofitc=$(echo "${totalprofit}"|cut -c1)
 #
 #Section A: Gathers various account/status information from api.robinhood.com
 echo "+ Robinhood Account 0 \${time %d %b %Y %H:%M:%S} - TESTING"
@@ -64,7 +64,7 @@ for e in 0 1 2; do
 	fi
 	equity=$(echo "${price}*${quantity}"| bc)
 	return=$(echo "${equity}-${spentusd}"| bc)
-	returnc=$(echo "${return}"| bc|cut -c1)
+	returnc=$(echo "${return}"|cut -c1)
 	returnp=$(echo ${return} ${spentusd}|awk '{print $1/$2*100}'|cut -c1-5)
 	#
 	echo "+ $symbol"
