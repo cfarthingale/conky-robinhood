@@ -55,6 +55,9 @@ echo " +"
 for e in 0 1 2; do
 	symbol=$(echo "$positions"|jq -r .results[$e].instrument|xargs curl -s|jq -r '.symbol')
 	quantity=$(echo "$positions"|jq -r .results[$e].quantity|cut -c1-5)
+	if [[ $quantity == "0.000" ]];then
+		break
+	fi
 	paid=$(echo "$positions"|jq -r .results[$e].average_buy_price)
 	spentusd=$(echo "${quantity}*${paid}"| bc)
 	if [[ $opencheck == "true" ]];then
