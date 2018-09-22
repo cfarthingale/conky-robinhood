@@ -8,8 +8,7 @@ curl -s $apiurl/portfolios/ -H "Accept: application/json" -H "Authorization: Tok
 curl -s $apiurl/accounts/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' >> /dev/shm/data.tmp
 curl -s $apiurl/positions/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' > /dev/shm/positions.tmp
 hour=$(date "+%k")
-#opencheck=$((( 6 <= hour && hour < 13 )) && echo true || echo false)
-opencheck=(false)
+opencheck=$((( 6 <= hour && hour < 13 )) && echo true || echo false)
 #opencheck=$(curl -s $apiurl/markets/|jq -r .results[3].todays_hours|xargs curl -s|jq -r '.is_open')
 if [[ $opencheck == "true" ]];then
 	equity=$(cat /dev/shm/data.tmp |jq -r '.results[0].equity // empty')
