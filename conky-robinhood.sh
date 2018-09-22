@@ -8,7 +8,8 @@ curl -s $apiurl/portfolios/ -H "Accept: application/json" -H "Authorization: Tok
 curl -s $apiurl/accounts/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' >> /dev/shm/data.tmp
 curl -s $apiurl/positions/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' > /dev/shm/positions.tmp
 hour=$(date "+%k")
-opencheck=$((( 6 <= hour && hour < 13 )) && echo true || echo false)
+#opencheck=$((( 6 <= hour && hour < 13 )) && echo true || echo false)
+opencheck=(false)
 #opencheck=$(curl -s $apiurl/markets/|jq -r .results[3].todays_hours|xargs curl -s|jq -r '.is_open')
 if [[ $opencheck == "true" ]];then
 	equity=$(cat /dev/shm/data.tmp |jq -r '.results[0].equity // empty')
@@ -28,7 +29,7 @@ positionsc=$(echo $(echo "$positions"|grep url|wc -l)-1|bc)
 totalprofit=$(echo "${equity}-${totaldeposits}"| bc)
 totalprofitc=$(echo "${totalprofit}"|cut -c1)
 totalprofitp=$(echo "${totalprofit} ${totaldeposits}"|awk '{print $1/$2*100}')
-echo "+ Robinhood Account 0 - \${time %d %b %Y %H:%M:%S} - PRODUCTION"
+echo "+ Robinhood Account 0 - \${time %d %b %Y %H:%M:%S}"
 echo " +"
 #
 #Check if market is open
@@ -68,8 +69,8 @@ echo " | + Withdrawn    : $totalwithdrawals"
 #Total Withdrawals
 echo " | + Withdrawable : $withdrawable"
 echo " +"
-#
-for e in $(seq 0 $positionsc); do
+# Section B
+for e in $(seq 0 $positionsc); do (
 	symbol=$(echo "$positions"|jq .results[$e].instrument|xargs curl -s|jq -r '.symbol')
 	quantity=$(echo "$positions"|jq -r .results[$e].quantity|cut -c1-5)
 	paid=$(echo "$positions"|jq -r .results[$e].average_buy_price)
@@ -105,7 +106,8 @@ for e in $(seq 0 $positionsc); do
 		echo "\${color orange} | + ALERT  : Above +10% return = Sell?\${color}"
 #		echo "Alert, $symbol up $returnp%, Sell now to lock in $return dollars"|espeak
 	fi
-echo " +"
+echo " +") &
 done
+#wait
 echo "+"
 exit 0
