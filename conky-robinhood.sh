@@ -1,5 +1,6 @@
 #!/bin/bash
 # A poorly commented RobinHood API script for use with Conky.
+#opencheck=$(curl -s $apiurl/markets/|jq -r .results[3].todays_hours|xargs curl -s|jq -r '.is_open') # UNRELIABLE
 authtoken=(your_api_token)
 apiurl=(https://api.robinhood.com)
 totaldeposits=(1000.00)
@@ -7,10 +8,10 @@ totalwithdrawals=(0)
 curl -s $apiurl/portfolios/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' > /dev/shm/data.tmp
 curl -s $apiurl/accounts/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' >> /dev/shm/data.tmp
 curl -s $apiurl/positions/ -H "Accept: application/json" -H "Authorization: Token $authtoken"|jq '.' > /dev/shm/positions.tmp
-hour=$(date "+%k")
-opencheck=$((( 6 <= hour && hour < 13 )) && echo true || echo false)
-#opencheck=$(curl -s $apiurl/markets/|jq -r .results[3].todays_hours|xargs curl -s|jq -r '.is_open')
-if [[ $opencheck == "true" ]];then
+hourcheck=$((( 6 <= $(date "+%k") && $(date "+%k") < 13 )) && echo true || echo false)
+daycheck=$((( 1 <= $(date "+%w") && $(date "+%w") < 6 )) && echo true || echo false)
+if [[ $daycheck == "true" ]] && [[ $hourcheck == "true" ]];then opencheck=(true); else opencheck=(false); fi
+if [[ $hourcheck == "true" ]];then
 	equity=$(cat /dev/shm/data.tmp |jq -r '.results[0].equity // empty')
 	marketvalue=$(cat /dev/shm/data.tmp |jq -r '.results[0].market_value // empty')
 else
@@ -68,7 +69,7 @@ echo " | + Withdrawn    : $totalwithdrawals"
 #Total Withdrawals
 echo " | + Withdrawable : $withdrawable"
 echo " +"
-# Section B
+#
 for e in $(seq 0 $positionsc); do (
 	symbol=$(echo "$positions"|jq .results[$e].instrument|xargs curl -s|jq -r '.symbol')
 	quantity=$(echo "$positions"|jq -r .results[$e].quantity|cut -c1-5)
@@ -92,8 +93,7 @@ for e in $(seq 0 $positionsc); do (
 	echo "+ $symbol +$quantity shares"
 	echo " +"
 	echo " | + Price  : $price"
-	echo " | + Paid   : $paid"
-	echo " | + Spent  : $spentusd"
+	echo " | + Paid   : $paid $spentusd"
 	echo " | + Equity : $equity"
 	if [[ $returnc == "-" ]];then
 		echo " | + Return : \${color red}"${return} ${returnp}\%"\${color}"
@@ -105,8 +105,8 @@ for e in $(seq 0 $positionsc); do (
 		echo "\${color orange} | + ALERT  : Above +10% return = Sell?\${color}"
 #		echo "Alert, $symbol up $returnp%, Sell now to lock in $return dollars"|espeak
 	fi
-echo " +") &
+echo " +" ) &
 done
-#wait
+wait
 echo "+"
 exit 0
