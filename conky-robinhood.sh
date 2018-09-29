@@ -11,7 +11,7 @@ curl -s $apiurl/positions/ -H "Accept: application/json" -H "Authorization: Toke
 hourcheck=$((( 6 <= $(date "+%k") && $(date "+%k") < 13 )) && echo true || echo false)
 daycheck=$((( 1 <= $(date "+%w") && $(date "+%w") < 6 )) && echo true || echo false)
 if [[ $daycheck == "true" ]] && [[ $hourcheck == "true" ]];then opencheck=(true); else opencheck=(false); fi
-if [[ $hourcheck == "true" ]];then
+if [[ $opencheck == "true" ]];then
 	equity=$(cat /dev/shm/data.tmp |jq -r '.results[0].equity // empty')
 	marketvalue=$(cat /dev/shm/data.tmp |jq -r '.results[0].market_value // empty')
 else
@@ -70,7 +70,7 @@ echo " | + Withdrawn    : $totalwithdrawals"
 echo " | + Withdrawable : $withdrawable"
 echo " +"
 #
-for e in $(seq 0 $positionsc); do (
+for e in $(seq 0 $positionsc); do
 	symbol=$(echo "$positions"|jq .results[$e].instrument|xargs curl -s|jq -r '.symbol')
 	quantity=$(echo "$positions"|jq -r .results[$e].quantity|cut -c1-5)
 	paid=$(echo "$positions"|jq -r .results[$e].average_buy_price)
@@ -105,7 +105,7 @@ for e in $(seq 0 $positionsc); do (
 		echo "\${color orange} | + ALERT  : Above +10% return = Sell?\${color}"
 #		echo "Alert, $symbol up $returnp%, Sell now to lock in $return dollars"|espeak
 	fi
-echo " +" ) &
+echo " +"
 done
 wait
 echo "+"
