@@ -46,7 +46,7 @@ conky.text = [[
 #${execp bash ./conky-robinhood.sh}
 ${execp bash ./robinhood-account.sh}
 #${execpi 10 bash ./robinhood-positions.sh}
-${execp bash ~/documents/utils/stock-software/robinhood-positions-column.sh| awk '{ print " | + " $0; }'|column -t -s ','}
+${execp bash ./robinhood-positions-column.sh| awk '{ print " | + " $0; }'|column -t -s ','}
  +
 +
 ]]
