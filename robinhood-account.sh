@@ -1,4 +1,4 @@
-#!/bin.sh
+#!/bin/sh
 authtoken=(your_api_token)
 apiurl=(https://api.robinhood.com)
 totaldeposits=(100.00)
